@@ -3,10 +3,12 @@
 #include <ctime>
 #include <string>
 #include <time.h>
+#include <thread>
+#include <chrono>
 
 //double calculateWait(time_t curr);
 void convert_time_calc(int(*time)[3]);
-double calculateWait(tm curr);
+int calculateWait(tm curr);
 int init_schedules();
 int on = 1;
 
@@ -37,7 +39,7 @@ int main(){
 			return -1;
 		}
 		else {
-			bg_t[i]->tm_min = stoi(hour_val, 0, 10);
+			bg_t[i]->tm_min = stoi(min_val, 0, 10);
 		}
 
 		std::cout << "Enter an second value: ";
@@ -53,6 +55,7 @@ int main(){
 		//std::cout << asctime_s(buffer, 50, bg_t[i]);
 		
 	}
+	std::cout << "\n h = " << bg_t[0]->tm_hour << "  || m = " << bg_t[0]->tm_min << " || s = " << bg_t[0]->tm_sec << "\n";
 	
 	//time_t *currentTime = new time_t
 	time_t currentTime = time(0);
@@ -74,11 +77,10 @@ int main(){
 	//*currentTime = time(0);
 	
 	while (on) {
-		std::cout << "while loop";
 		*a = time(0);
 		gmtime_s(curr, a);
 		//double x = calculateWait(currentTime);
-		double x = calculateWait(*curr);
+		int x = calculateWait(*curr);
 		std::cout << " \n x = " << x << "\n";
 		if (x == -1) {
 			std::cout << "\n NEGATIVE ONE";
@@ -86,7 +88,7 @@ int main(){
 		}
 		else {
 			std::cout << "ayy it workd";
-			Sleep(x);
+			std::this_thread::sleep_for(std::chrono::seconds(x));
 		}
 	}	
 	
@@ -119,7 +121,6 @@ int init_schedules() {
 double calculateWait(time_t curr) {
 	int numSched = (sizeof(bg_t) / sizeof(*bg_t));
 	double shortest = 86400;
-	std::cout << "in calcWait";
 	for (int i = 0; i < numSched; i++) {
 		double curr_diff = difftime(mktime(bg_t[i]), curr);
 		std::cout << " CURR DIFF :  " << curr_diff << " : \n";
@@ -133,12 +134,12 @@ double calculateWait(time_t curr) {
 
 }
 
-double calculateWait(tm curr) {
+int calculateWait(tm curr) {
 	int numSched = (sizeof(bg_t) / sizeof(*bg_t));
 	int curr_in_sec = curr.tm_hour * 60 * 60 + curr.tm_min * 60 + curr.tm_sec;
 	int shortest = 90061;
-	std::cout << "in calcWait";
 	for (int i = 0; i < numSched; i++) {
+		//curr.tm_hour -= 4;
 		int curr_diff[3] =  { bg_t[i]->tm_hour - curr.tm_hour, bg_t[i]->tm_min - curr.tm_min, bg_t[i]->tm_sec - curr.tm_sec };
 		std::cout << "curr_diff = " << curr_diff[0] << ", " << curr_diff[1] << ", " << curr_diff[2] << "\n";
 		std::cout << "bg_t[i]->tm_hour = " << bg_t[i]->tm_hour << " || curr.tm_hour = " << curr.tm_hour << " \n";
@@ -147,7 +148,8 @@ double calculateWait(tm curr) {
 
 		if (curr_diff[0] >= 0) {
 			convert_time_calc(&curr_diff);
-			int curr_diff_in_sec = curr_diff[0] * 60 * 60 + curr_diff[1] * 60 + curr_diff[3];
+			std::cout << "curr_diff now = " << curr_diff[0] << ", " << curr_diff[1] << ", " << curr_diff[2] << "\n";
+			int curr_diff_in_sec = curr_diff[0] * 60 * 60 + curr_diff[1] * 60 + curr_diff[2];
 			std::cout << "curr_diff_in_sec = " << curr_diff_in_sec << "\n";
 			std::cout << "shortest = " << shortest;
 
@@ -184,6 +186,7 @@ void convert_time_calc(int (*time)[3]) {
 		int new_hr = hr_plus_min - (*time)[1];
 		(*time)[0] = (int)(new_hr / 60);
 	}
+	
 	if ((*time)[0] < 0) {
 		return ;
 	}
