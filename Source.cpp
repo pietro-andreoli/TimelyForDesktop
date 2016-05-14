@@ -94,8 +94,12 @@ int main(){
 		//Setting the current time
 		*a = time(0);
 		gmtime_s(curr, a);
+		//std::cout << "\n time.h = " << curr->tm_hour;
 		//Getting the calculated time for waiting.
-		int x = calculateWait(*curr);
+		//uncomment when you figure out what hmade this line stop working 
+		//int x = calculateWait(*curr);
+		time_t temp;
+		int x = calculateWait(time(&temp));
 		//just a debugging print statement
 		std::cout << " \n x = " << x << "\n";
 		//If calculated -1 (meaning there was some sort of error)
